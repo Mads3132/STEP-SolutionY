@@ -1,0 +1,27 @@
+{
+    "xsappname" : "Solution",
+    "tenant-mode": "dedicated",
+    "scopes": [
+        {
+            "name": "$XSAPPNAME.User",
+            "description": "User"
+        },
+        {
+            "name": "$XSAPPNAME.Admin",
+            "description": "Admin"
+        }
+    ], 
+    "role-templates":[
+    {
+        "name": "ADMIN",
+        "description" : "Admin",
+        "scope-references": ["$XSAPPNAME.Admin"]
+
+    },
+    {
+        "name": "User",
+        "description" : "User",
+        "scope-references": ["$XSAPPNAME.User"]
+    }
+]
+}
