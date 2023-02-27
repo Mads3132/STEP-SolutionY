@@ -8,14 +8,13 @@ entity Project : cuid, managed{
     endDate: Date not null;
     maxHours: Double not null;
     registeredHours: Double;
-    
 }
 
 entity User : cuid {
     workSchedule: Association to many WorkSchedule on workSchedule.user = $self;    //underscore for association
-    username: String(12);
-    firstName: String(24);
-    lastName: String(24);
+    username: String(32);
+    firstName: String(32);
+    lastName: String(32);
     //Image : LargeBinary @Core.MediaType : 'image/png';
     title: String;
 }

@@ -3,6 +3,11 @@ const cds = require('@sap/cds');
 module.exports = async function(srv) {
     const {WorkHoursSet, ProjectSet, UserSet, WorkScheduleSet, DayScheduleSet, AbsenceSet} = srv.entities;
 
+
+    const calculatedAbsenceTime = 0;
+    const calculatedWorkTime = 0;
+
+
     //Slight user restrictions in the form of no spaces in username and no numbers in first name or last name.
     srv.before('CREATE', 'UserSet', async (req) => {
         const username = req.data.username;
@@ -86,117 +91,125 @@ module.exports = async function(srv) {
         }
     })  
 
-    // Custom logic to create an entity for each day in the workSchedule
-    srv.on('CREATE', 'WorkScheduleSet', async (req) =>{
-        const db = srv.transaction(req);
+    
+    // Creates new hardcoded DaySchedulesSets every time we create a new WorkScheduleSet.
+    // It needs to be modified to take user input upon creating a new WorkScheduleSet,
+    // and reuse already made DayScheduleSets that fit the work days within the work week.
+    // Possible button for or otherwise option for creating a new DayScheduleSet.
+    // // Custom logic to create an entity for each day in the workSchedule
+    // srv.on('CREATE', 'WorkScheduleSet', async (req) =>{
+    //     const db = srv.transaction(req);
         
-        const effectiveStartDate = new Date(req.effectiveStartDate);
-        const effectiveEndDate = new Date(req.effectiveEndDate);
-        let dates = [];
-        let validDays = [];
-        let currentDate = effectiveStartDate;
+    //     const effectiveStartDate = new Date(req.effectiveStartDate);
+    //     const effectiveEndDate = new Date(req.effectiveEndDate);
+    //     let dates = [];
+    //     let validDays = [];
+    //     let currentDate = effectiveStartDate;
 
-        // Make an array for all the dates the user has put as input and call it "dates".
-        while(currentDate <= effectiveEndDate){
-            dates.push(new Date(currentDate));
+    //     // Make an array for all the dates the user has put as input and call it "dates".
+    //     while(currentDate <= effectiveEndDate){
+    //         dates.push(new Date(currentDate));
 
-            currentDate.setDate(currentDate.getDate()+1);
-        }
-        // loop through the "dates" array, and convert each date into a day, push those days into a new array called "validDays".
-        for (let i = 0; i < dates.length; i++){
-            let date = dates[i];
-            let day = date.getDay();
-            validDays.push(day);
-        }
+    //         currentDate.setDate(currentDate.getDate()+1);
+    //     }
+    //     // loop through the "dates" array, and convert each date into a day, push those days into a new array called "validDays".
+    //     for (let i = 0; i < dates.length; i++){
+    //         let date = dates[i];
+    //         let day = date.getDay();
+    //         validDays.push(day);
+    //     }
 
-        /* "validDays" is an array of ints where each day represents and integer, sunday = 0 monday = 1, etc
-        loop through that array, and set the respective "StartTime" and "EndTime" for those days and create
-        an entity out of each day. Give them all the same ID, to distinguish which DaySchedule belongs to which user. */
-        for (let i = 0; i <validDays.length; i++){
-            switch(validDays[i]){
-                case 0:
-                    await cds.run(INSERT.into(DayScheduleSet).entries([
-                        {
-                            workSchedule_ID: req.ID,
-                            startTime: '00:00:00',
-                            endTime: '00:00:00',
-                            weekDay : 0
-                        }
-                    ]));
-                    continue;
-                case 1:
-                    await cds.run(INSERT.into(DayScheduleSet).entries([
-                        {             
-                            workSchedule_ID: req.ID,              
-                            startTime: '08:00:00',
-                            endTime: '16:00:00',
-                            weekDay : 1
-                        }
-                    ]));
-                    continue;
-                case 2:
-                    await cds.run(INSERT.into(DayScheduleSet).entries([
-                        {           
-                            workSchedule_ID: req.ID,                
-                            startTime: '08:00:00',
-                            endTime: '16:00:00',
-                            weekDay : 2
-                        }
-                    ]));
-                    continue;
-                case 3:
-                    await cds.run(INSERT.into(DayScheduleSet).entries([
-                        {        
-                            workSchedule_ID: req.ID,                    
-                            startTime: '08:00:00',
-                            endTime: '16:00:00',
-                            weekDay : 3
-                        }
-                    ]));
-                    continue;
-                case 4:
-                    await cds.run(INSERT.into(DayScheduleSet).entries([
-                        {        
-                            workSchedule_ID: req.ID,                    
-                            startTime: '08:00:00',
-                            endTime: '16:00:00',
-                            weekDay : 4
-                        }
-                    ]));
-                    continue;
-                case 5:
-                    await cds.run(INSERT.into(DayScheduleSet).entries([
-                        {     
-                            workSchedule_ID: req.ID,                       
-                            startTime: '08:00:00',
-                            endTime: '14:00:00',
-                            weekDay : 5
-                        }
-                    ]));
-                    continue;
-                case 6:
-                    await cds.run(INSERT.into(DayScheduleSet).entries([
-                        {     
-                            workSchedule_ID: req.ID,                       
-                            startTime: '00:00:00',
-                            endTime: '00:00:00',
-                            weekDay : 6
-                        }
-                    ]));
-                    continue;
-                default:
-                    await cds.run(INSERT.into(DayScheduleSet).entries([
-                        {
-                            workSchedule_ID: req.ID,
-                            startTime: '00:00:00',
-                            endTime: '00:00:00',
-                            weekDay : 0
-                        }
-                    ]));
-                    continue;
-            }
-        }
-    })
+    //     /* "validDays" is an array of ints where each day represents and integer, sunday = 0 monday = 1, etc
+    //     loop through that array, and set the respective "StartTime" and "EndTime" for those days and create
+    //     an entity out of each day. Give them all the same ID, to distinguish which DaySchedule belongs to which user. */
+    //     for (let i = 0; i <validDays.length; i++){
+    //         switch(validDays[i]){
+    //             case 0:
+    //                 await cds.run(INSERT.into(DayScheduleSet).entries([
+    //                     {
+    //                         workSchedule_ID: req.ID,
+    //                         startTime: '00:00:00',
+    //                         endTime: '00:00:00',
+    //                         weekDay : 0
+    //                     }
+    //                 ]));
+    //                 continue;
+    //             case 1:
+    //                 await cds.run(INSERT.into(DayScheduleSet).entries([
+    //                     {             
+    //                         workSchedule_ID: req.ID,              
+    //                         startTime: '08:00:00',
+    //                         endTime: '16:00:00',
+    //                         weekDay : 1
+    //                     }
+    //                 ]));
+    //                 continue;
+    //             case 2:
+    //                 await cds.run(INSERT.into(DayScheduleSet).entries([
+    //                     {           
+    //                         workSchedule_ID: req.ID,                
+    //                         startTime: '08:00:00',
+    //                         endTime: '16:00:00',
+    //                         weekDay : 2
+    //                     }
+    //                 ]));
+    //                 continue;
+    //             case 3:
+    //                 await cds.run(INSERT.into(DayScheduleSet).entries([
+    //                     {        
+    //                         workSchedule_ID: req.ID,                    
+    //                         startTime: '08:00:00',
+    //                         endTime: '16:00:00',
+    //                         weekDay : 3
+    //                     }
+    //                 ]));
+    //                 continue;
+    //             case 4:
+    //                 await cds.run(INSERT.into(DayScheduleSet).entries([
+    //                     {        
+    //                         workSchedule_ID: req.ID,                    
+    //                         startTime: '08:00:00',
+    //                         endTime: '16:00:00',
+    //                         weekDay : 4
+    //                     }
+    //                 ]));
+    //                 continue;
+    //             case 5:
+    //                 await cds.run(INSERT.into(DayScheduleSet).entries([
+    //                     {     
+    //                         workSchedule_ID: req.ID,                       
+    //                         startTime: '08:00:00',
+    //                         endTime: '14:00:00',
+    //                         weekDay : 5
+    //                     }
+    //                 ]));
+    //                 continue;
+    //             case 6:
+    //                 await cds.run(INSERT.into(DayScheduleSet).entries([
+    //                     {     
+    //                         workSchedule_ID: req.ID,                       
+    //                         startTime: '00:00:00',
+    //                         endTime: '00:00:00',
+    //                         weekDay : 6
+    //                     }
+    //                 ]));
+    //                 continue;
+    //             default:
+    //                 await cds.run(INSERT.into(DayScheduleSet).entries([
+    //                     {
+    //                         workSchedule_ID: req.ID,
+    //                         startTime: '00:00:00',
+    //                         endTime: '00:00:00',
+    //                         weekDay : 0
+    //                     }
+    //                 ]));
+    //                 continue;
+    //         }
+    //     }
+    // })
+
+
+
     /* Here the user can set their absence, but only inside viable working hours. */
     srv.before('CREATE', 'AbsenceSet', async (req) =>{
         /*The user sets a "StartDate" and "EndDate" for when he is going to be absent. We take that date, and
@@ -232,9 +245,12 @@ module.exports = async function(srv) {
 
         /* if the StartTime and EndTime are NOT within the expected working hours for that day, return an error*/
         
-        if (!(absenceStartTime >= workHourStartTime.getTime() && absenceStartTime < workHourEndTime.getTime() && absenceEndTime > workHourStartTime.getTime() && absenceEndTime <= workHourEndTime.getTime())){
+        if (!(absenceStartTime >= workHourStartTime.getTime() && absenceStartTime < absenceEndTime && absenceEndTime <= workHourEndTime.getTime())){
             //console.log(StartTime, EndTime,workHourStartTime.getTime() , workHourEndTime.getTime());    
             req.reject(400, "Cannot register outside workhours");
+        }
+        else {
+            calculatedAbsenceTime = absenceEndTime - absenceStartTime;
         }
     })
 }
