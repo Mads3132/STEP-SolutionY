@@ -16,11 +16,13 @@ service solutionService {
 
     entity WorkScheduleSet as projection on schema.WorkSchedule;
 
-    entity WorkHoursSet as projection on schema.WorkHours;
+    entity WorkHourSet as projection on schema.WorkHours;
 
     entity DayScheduleSet as projection on schema.DaySchedule;
 
     entity AbsenceSet as projection on schema.Absence;
+
+    entity AbstractRegisterHours as projection on schema.AbstractRegisterHours;
     
 }
 
