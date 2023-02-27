@@ -1,0 +1,28 @@
+{
+    "[development]": {
+      "auth": {
+        "passport": {
+          "users": {
+            
+            "TempAdmin": "...",
+            "Admin": {
+              "password": "initial",
+              "ID": "Admin",
+              "roles": [
+                "Admin"
+              ],
+
+              "TempUser": "...",
+              "User": {
+                "password": "initial",
+                "ID": "User",
+                "roles": [
+                  "User"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
