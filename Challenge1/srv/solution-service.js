@@ -1,7 +1,7 @@
 const cds = require('@sap/cds');
 
 module.exports = async function(srv) {
-    const {WorkHourSet, ProjectSet, UserSet, WorkScheduleSet, DayScheduleSet, AbsenceSet, AbstractRegisterHours} = srv.entities;
+    const {WorkHourSet, ProjectSet, UserSet, WorkScheduleSet, DayScheduleSet, AbsenceSet} = srv.entities;
 
     //Slight user restrictions in the form of no spaces in username and no numbers in first name or last name.
     srv.before('CREATE', 'UserSet', async (req) => {
@@ -18,20 +18,18 @@ module.exports = async function(srv) {
             req.reject(400, 'Last name cannot include numbers');
         }
     })
-    //------------------Checking validity period-----------------------
-    /* Logic for only allowing registering of hours within validity period of project. 
-    Project data is requested through a custom filter which finds the correct project through its respective ID. 
-    Lastly the handler compares the StartTime and EndTime of the registered WorkHours together with the 
-    StartDate and EndDate of the Project. */
-    srv.before('CREATE', 'AbstractRegisterHours', async (req)=>{
+
+
+    srv.on('RegisterHours', async (req)=>{
         const db = srv.transaction(req);
-        const currentProject = await db.get(ProjectSet).byKey({ID: req.data.project_ID});
+        const data = req.data.data;
+        const currentProject = await db.get(ProjectSet).byKey({ID: data.project_ID});
         
         //const filter = await db.get(ProjectSet).where({"ID": req.data["project_ID"]});
         //const currentProjectEntity = filter[0];
 
-        const startTime = new Date(req.data.workHourStartTime);
-        const endTime = new Date (req.data.workHourEndTime);
+        const startTime = new Date(data.workHourStartTime);
+        const endTime = new Date (data.workHourEndTime);
 
         // Corrects TimezoneOffset
         startTime.setMinutes(startTime.getMinutes()+startTime.getTimezoneOffset());
@@ -39,6 +37,25 @@ module.exports = async function(srv) {
 
         const projectStartDate = new Date(currentProject.startDate);
         const projectEndDate = new Date(currentProject.endDate);
+
+        /*The user sets a "StartDate" and "EndDate" for when he is going to be absent. We take that date, and
+        make a new variable out of them to also get the time for when tey are going to be absent. Finally we 
+        also make a variable for the current day that date is, and convert it to a string*/
+        const absenceStartDate = new Date(data.absenceStartTime);
+        const absenceEndDate = new Date(data.absenceEndTime);
+        const absenceStartTime = absenceStartDate.getTime();
+        const absenceEndTime = absenceEndDate.getTime();
+        const absenceStartHours = absenceStartDate.getHours();
+        const absenceEndHours = absenceEndDate.getHours();
+
+        const day = absenceStartDate.getDay().toString();
+
+
+        //------------------Checking validity period-----------------------
+        /* Logic for only allowing registering of hours within validity period of project. 
+        Project data is requested through a custom filter which finds the correct project through its respective ID. 
+        Lastly the handler compares the StartTime and EndTime of the registered WorkHours together with the 
+        StartDate and EndDate of the Project. */
         if (startTime.getTime() < projectStartDate.getTime() || endTime.getTime() > projectEndDate.getTime() ) {
             req.reject(400, "Cannot register hours outside valid project hours");
         }
@@ -48,12 +65,12 @@ module.exports = async function(srv) {
     /* Logic for checking if there have been a minimum of 11 hours since last time registration for the same user.
     The handler compares if the newly registered WorkHours 'createdAt time' is >= the previous logged hours - 11, 
     while also taking the user_ID into consideration. */
-        const prevEndTime = await db.get(AbstractRegisterHours).where(`user_ID = '${req.data.user_ID}'`);
+        const prevEndTime = await db.get(WorkHourSet).where(`user_ID = '${data.user_ID}'`);
                             // await db.get(ProjectSet).byKey({ID: req.data.project_ID});
         if (prevEndTime[0] !== null) {
             for(const reg of prevEndTime){
-                const uEndTime = new Date(reg.workHourEndTime);
-                const uStartTime = new Date(reg.workHourStartTime);
+                const uEndTime = new Date(reg.endTime);
+                const uStartTime = new Date(reg.startTime);
                 uEndTime.setHours(uEndTime.getHours() + 11);
                 uStartTime.setHours(uStartTime.getHours() - 11);
                 if (startTime.getTime() < uEndTime.getTime() && endTime.getTime() > uStartTime.getTime()) {
@@ -65,19 +82,11 @@ module.exports = async function(srv) {
         
         //-------------------- Absence validation --------------------
          /* Here the user can set their absence, but only inside viable working hours. */
-        if (req.data.absenceStartTime !== undefined || req.data.absenceStartTime !== null) {
-            /*The user sets a "StartDate" and "EndDate" for when he is going to be absent. We take that date, and
-            make a new variable out of them to also get the time for when tey are going to be absent. Finally we 
-            also make a variable for the current day that date is, and convert it to a string*/
-            const absenceStartDate = new Date(req.data.absenceStartTime);
-            const absenceEndDate = new Date(req.data.absenceEndTime);
-            const absenceStartTime = absenceStartDate.getTime();
-            const absenceEndTime = absenceEndDate.getTime();
-            const day = absenceStartDate.getDay().toString();
+        if (data.absenceStartTime !== undefined || data.absenceStartTime !== null) {
 
             /* The user inputs a workschedule_ID which belongs to that user. Then we return all those days, where
             that workschedule_ID holds true for that user and create an array out of all those daySchedule entities*/
-            const workSchedules = await cds.run(SELECT.from(WorkScheduleSet).where((`user_ID = '${req.data.user_ID}'`)))
+            const workSchedules = await cds.run(SELECT.from(WorkScheduleSet).where((`user_ID = '${data.user_ID}'`)))
             const daySchedules = await cds.run(SELECT.from(DayScheduleSet).where((`workSchedule_ID = '${workSchedules[0].ID}'`)))
             
             /* Loop through each daySchedule entity and find the day which corresponds with the day, the user has 
@@ -93,20 +102,20 @@ module.exports = async function(srv) {
                 Epoch time */
                 const fromTime = daySchedule.startTime.split(':');
                 const toTime = daySchedule.endTime.split(':');
-                const workHourStartTime = new Date(absenceStartDate);
-                const workHourEndTime = new Date(absenceEndDate);
-                workHourStartTime.setHours(parseInt(fromTime[0]),parseInt(fromTime[1]),parseInt(fromTime[2]));
-                workHourEndTime.setHours(parseInt(toTime[0]),parseInt(toTime[1]),parseInt(toTime[2]));
+                const dayScheduleStartTime = new Date(absenceStartDate);
+                const dayScheduleEndTime = new Date(absenceEndDate);
+                dayScheduleStartTime.setHours(parseInt(fromTime[0]),parseInt(fromTime[1]),parseInt(fromTime[2]));
+                dayScheduleEndTime.setHours(parseInt(toTime[0]),parseInt(toTime[1]),parseInt(toTime[2]));
 
             /* if the StartTime and EndTime are NOT within the expected working hours for that day, return an error*/
             
-            if (!(absenceStartTime >= workHourStartTime.getTime() && absenceStartTime < absenceEndTime && absenceEndTime <= workHourEndTime.getTime())){
+            if (!(absenceStartTime >= dayScheduleStartTime.getTime() && absenceStartTime < absenceEndTime && absenceEndTime <= dayScheduleEndTime.getTime())){
                 //console.log(StartTime, EndTime,workHourStartTime.getTime() , workHourEndTime.getTime());    
                 req.reject(400, "Cannot register outside workhours");
             }
 
         }
-            //---------------------------Has reached maximum hours?
+            //---------------Has reached maximum hours?-----------------------
     /* Logic for insuring that WorkHours cannot be registered if the maximum number of hours for a project have been
     reached. Handler gets the appropiate project key, as well as StartTime and EndTime in hour format from WorkHours. 
     A new projects RegisteredHours should always start at 0.0 and then the calculatedHours can be added to that.
@@ -119,23 +128,53 @@ module.exports = async function(srv) {
 
         //The 'const calculatedHours' calculates the amount of hours registered.
         const calculatedHours = endHours-startHours;
+        const calculatedAbsence = absenceEndHours - absenceStartHours;
+        let accumulatedHours = 0.0;
+
         if(!currentProject.registeredHours) currentProject.registeredHours = 0.0; 
+
+        // If user registers absence within the registered work hours,
+        // we subtract the absence hours from the work hours before updating the db.
+        if ((absenceStartTime >= startTime.getTime() && absenceEndTime <= endTime.getTime())){
+            accumulatedHours = currentProject.registeredHours + calculatedHours - calculatedAbsence;
+        }
 
         /*If "calculatedHours + RegisteredHours" is less than the maximum hours for a project
         it should reject the request.*/
-        if(calculatedHours + currentProject.registeredHours > currentProject.maxHours) {
+        if(accumulatedHours > currentProject.maxHours) {
             req.reject(400, "Maximum hours for this project has already been reached");
             // Potentially add hours left in error message
             return;
-        }
-        
-        //Lastly the projects RegisteredHours is updated in the database.
-        currentProject.registeredHours += calculatedHours;
-        await db.update(ProjectSet).byKey({ID: currentProject.ID}).with(currentProject);
-         
-    })  
+        } 
 
-    
+
+        //--------------Updating entities----------------
+        // If all validation in srv.before is accepted, 
+        // then we create following entities.
+            // Create WorkHour entity in WorkHourSet, with user inputted data.
+        await cds.run(INSERT.into(WorkHourSet).entries([
+            {
+                project_ID: data.project_ID,
+                user_ID: data.user_ID,
+                startTime: data.workHourStartTime,
+                endTime: data.workHourEndTime
+            }
+        ]));
+
+        // Create Absence entity in AbsenceSet, with user inputted data.
+        await cds.run(INSERT.into(AbsenceSet).entries([
+            {
+                project_ID: data.project_ID,
+                user_ID: data.user_ID,
+                startTime: data.absenceStartTime,
+                endTime: data.absenceEndTime
+            }
+        ]));
+        
+        //Lastly the queried project's registeredHours is updated in the database.
+        await db.update(ProjectSet).byKey({ID: currentProject.ID}).set({registeredHours: accumulatedHours});
+
+    })
     // Creates new hardcoded DaySchedulesSets every time we create a new WorkScheduleSet.
     // It needs to be modified to take user input upon creating a new WorkScheduleSet,
     // and reuse already made DayScheduleSets that fit the work days within the work week.

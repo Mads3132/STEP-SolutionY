@@ -22,7 +22,8 @@ service solutionService {
 
     entity AbsenceSet as projection on schema.Absence;
 
-    entity AbstractRegisterHours as projection on schema.AbstractRegisterHours;
+    action RegisterHours(data : schema.HourRegistrationRequest);
+
     
 }
 

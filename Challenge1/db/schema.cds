@@ -56,7 +56,7 @@ entity WorkHours : cuid,managed{
     endTime: DateTime not null;
 }
 
-entity AbstractRegisterHours : cuid {
+type HourRegistrationRequest {
     project: Association to Project not null;
     user: Association to User not null; // Backlink
     workHourStartTime: DateTime not null;
