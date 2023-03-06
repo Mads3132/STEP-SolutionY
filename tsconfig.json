@@ -19,11 +19,12 @@
         ],
         "paths": {
             "schema/TimeRegistry/*": [
-                "./webapp/*"
+                "./webapp/*",
+                "./srv/*"
             ]
         }
     },
     "include": [
-        "./webapp/**/*"
+        "./webapp/**/*",
     ]
 }
