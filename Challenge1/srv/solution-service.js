@@ -138,9 +138,6 @@ module.exports = async function(srv) {
         if ((absenceStartTime >= startTime.getTime() && absenceEndTime <= endTime.getTime())){
             accumulatedHours = currentProject.registeredHours + calculatedHours - calculatedAbsence;
         }
-        else {
-            accumulatedHours = currentProject.registeredHours + calculatedHours
-        }
 
         /*If "calculatedHours + RegisteredHours" is less than the maximum hours for a project
         it should reject the request.*/
