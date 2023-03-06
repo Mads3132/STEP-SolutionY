@@ -1,31 +1,14 @@
-# CAP Challenge1
-_out
-*.db
-*.sqlite
-connection.properties
-default-*.json
-.cdsrc-private.json
-gen/
-node_modules/
-target/
+# build results
+dist
 
-# Web IDE, App Studio
-.che/
-.gen/
-
-# MTA
-*_mta_build_tmp
-*.mtar
-mta_archives/
-
-# Other
-.DS_Store
-*.orig
+# Logs
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-*.iml
-*.flattened-pom.xml
+# Dependency directories
+node_modules/
 
-# IDEs
-# .vscode
-# .idea
+.DS_Store
