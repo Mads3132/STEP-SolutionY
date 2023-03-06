@@ -1,0 +1,15 @@
+{
+  "generator-ui5-ts-app": {
+    "application": "TimeRegistry",
+    "namespace": "schema",
+    "framework": "SAPUI5",
+    "frameworkVersion": "1.108.10",
+    "author": "Rosengr3en",
+    "initrepo": false,
+    "tstypes": "@sapui5/ts-types-esm",
+    "tstypesVersion": "1.108.10",
+    "appId": "schema.TimeRegistry",
+    "appURI": "schema/TimeRegistry",
+    "setupCompleted": true
+  }
+}
