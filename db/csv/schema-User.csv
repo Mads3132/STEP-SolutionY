@@ -1,3 +1,3 @@
-ID;username;firstName;lastName;title
-568a1303-fd05-4945-a6bc-4b6fce2f6e46;AdminGuy;Toki;Olsen;THE admin
-568a1303-fd05-4945-a6bc-4b6fce2f6e47;UserGuy;Mads;Rosengreen;THE user
+ID;username;firstName;lastName;title;projects_ID
+568a1303-fd05-4945-a6bc-4b6fce2f6e46;AdminGuy;Toki;Olsen;THE admin;
+568a1303-fd05-4945-a6bc-4b6fce2f6e47;UserGuy;Mads;Rosengreen;THE user;0228b421-a188-498b-a9b7-6b37481bee30,0228b421-a188-498b-a9b7-6b37481bee31

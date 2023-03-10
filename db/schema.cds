@@ -3,6 +3,7 @@ using { cuid, sap, managed, temporal} from '@sap/cds/common';
 namespace schema;
 
 entity Project : cuid, managed{
+    users: Association to many User;
     projectName: String not null;
     startDate: Date not null;
     endDate: Date not null;
@@ -12,6 +13,7 @@ entity Project : cuid, managed{
 
 entity User : cuid {
     workSchedule: Association to many WorkSchedule on workSchedule.user = $self;    //underscore for association
+    projects: Association to many Project;
     username: String(32) not null;
     firstName: String(32) not null;
     lastName: String(32) not null;

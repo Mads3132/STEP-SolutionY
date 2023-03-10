@@ -6,18 +6,4 @@
 
 	<App id="app" />
 
-	<Input 
-	value="{}"
-	description="Expected work hours:"
-	valueLiveUpdate="true"
-	width="60%"
-	type="Number"
-	/>
-
-	<PlanningCalendar
-	width="60%"
-	height="30%"
-	firstDayOfWeek="1"
-	></PlanningCalendar>
-	
 </mvc:View>

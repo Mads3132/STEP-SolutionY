@@ -1,5 +1,6 @@
 import UIComponent from "sap/ui/core/UIComponent";
 import { support } from "sap/ui/Device";
+import JSONModel from "sap/ui/model/json/JSONModel";
 import models from "./model/models";
 
 /**
@@ -10,6 +11,8 @@ export default class Component extends UIComponent {
 	public static metadata = {
 		manifest: "json"
 	};
+
+	private controlModel: JSONModel;
 
 	private contentDensityClass : string;
 
@@ -43,6 +46,18 @@ export default class Component extends UIComponent {
 			}
 		}
 		return this.contentDensityClass;
+	}
+
+	public getControlModel() : JSONModel {
+		if (!this.getModel("Control")) {
+			const schema = {
+				Username: "",
+			};
+			this.controlModel = new JSONModel(schema);
+			this.controlModel.setDefaultBindingMode("TwoWay");
+			this.setModel(this.controlModel, "Control");
+		}
+		return this.getModel("Control") as JSONModel;
 	}
 
 }

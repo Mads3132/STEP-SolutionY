@@ -9,6 +9,16 @@
 		"description": "{{appDescription}}",
 		"applicationVersion": {
 			"version": "1.0.0"
+		},
+		"dataSources": {
+			"mainService": {
+				"uri": "/odata/",
+				"type": "OData",
+				"settings": {
+					"localUri": "localService/metadata.xml",
+					"odataVersion": "4.0"
+				}
+			}
 		}
 	},
 
@@ -30,6 +40,13 @@
 			"type": "XML",
 			"async": true,
 			"id": "app"
+		},
+		"resources": {
+			"css": [
+				{
+					"uri": "css/style.css"
+				}
+			]
 		},
 
 		"dependencies": {
@@ -54,6 +71,15 @@
 				"type": "sap.ui.model.resource.ResourceModel",
 				"settings": {
 					"bundleName": "schema.TimeRegistry.i18n.i18n"
+				}
+			},
+			"": {
+				"dataSource": "mainService",
+				"preload": true,
+				"type": "sap.ui.model.odata.v4.ODataModel",
+				"settings": {
+					"synchronizationMode": "None",
+					"operationMode": "Server"
 				}
 			}
 		},

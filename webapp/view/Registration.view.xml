@@ -1,0 +1,31 @@
+<mvc:View 
+controllerName="schema.TimeRegistry.controller.Registration"
+xmlns:cards="sap.f.cards" 
+displayBlock="true"
+xmlns:m="sap.m" 
+xmlns:mvc="sap.ui.core.mvc" >
+
+
+    <m:Page showHeader="false">
+    
+        <m:headerContent>
+            <m:Text text="Time Registration"/>
+        </m:headerContent>
+
+        <m:content>
+            <m:VBox justifyContent="Center" alignItems="Center" class="sapUiMediumMargin" >
+                <m:Title text="{i18n>welcome} {firstName} {lastName}! {i18n>selectProject}" />
+                <m:HBox justifyContent="Center" alignItems="Center" width="100vw" >
+                    <m:List id="projectList" width="50vw" items="{
+                        path: 'projects',
+                        parameters: { 
+                            $expand: 'project'
+                        }
+                    }" >
+                        <m:StandardListItem title="{Project/projectName}" type="Navigation" press=".onListItemPress" ></m:StandardListItem>
+                    </m:List>
+                </m:HBox>
+            </m:VBox>   
+        </m:content>
+    </m:Page>
+</mvc:View>

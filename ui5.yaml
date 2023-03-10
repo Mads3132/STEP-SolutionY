@@ -31,3 +31,8 @@ server:
       afterMiddleware: compression
       configuration:
         *transpileConfig
+    - name: ui5-middleware-simpleproxy
+      afterMiddleware: compression
+      mountPath: /odata
+      configuration:
+        baseUri: "http://localhost:4004/solution"

@@ -1,0 +1,28 @@
+<mvc:View 
+controllerName="schema.TimeRegistry.controller.Main"
+xmlns:cards="sap.f.cards" 
+displayBlock="true"
+xmlns:m="sap.m" 
+xmlns:mvc="sap.ui.core.mvc" >
+
+
+    <m:Page showHeader="false">
+    
+        <m:headerContent>
+            <m:Text text="Time Registration"/>
+        </m:headerContent>
+
+        <m:content>
+            <m:FlexBox height="100%" width="100%" direction="Column" justifyContent="Center" alignItems="Center" >
+                <m:VBox height="30vh" width="30vw" justifyContent="Center" alignItems="Center" class="loginBox" >
+                    <m:Title text="{i18n>loginHeader}" />
+                    <m:HBox  height="2rem" width="15rem" alignItems="Center" >
+                        <m:Label text="{i18n>username}:" class="sapUiMediumMarginEnd" />
+                        <m:Input id="usernameInput" placeholder="{i18>usernamePlaceholder}" liveChange=".onUsernameInputChange" ></m:Input>
+                    </m:HBox>
+                    <m:Button id="loginButton" text="{i18n>loginBtn}" type="Emphasized" press=".onLoginPress" ></m:Button>
+                </m:VBox>
+            </m:FlexBox>
+        </m:content>
+    </m:Page>
+</mvc:View>
