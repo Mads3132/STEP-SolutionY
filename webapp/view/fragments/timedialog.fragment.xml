@@ -1,0 +1,35 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="timedialog" title="{i18n>dialogTitle}">
+        <VBox class="sapUiSmallMargin">
+            <HBox alignItems="Center">
+                <Label text="{i18n>project}" class="sapUiSmallMarginEnd" width="150px" />
+                <Text text="{projectName}" />
+            </HBox>
+            <HBox alignItems="Center">
+                <Label text="{i18n>maxHours}" class="sapUiSmallMarginEnd" width="150px" />
+                <Text text="{maxHours}" />
+            </HBox>
+            <HBox alignItems="Center">
+                <Label text="{i18n>startDate}" class="sapUiSmallMarginEnd" width="150px" />
+                <Text text="{startDate}" />
+            </HBox>
+            <HBox alignItems="Center">
+                <Label text="{i18n>endDate}" class="sapUiSmallMarginEnd" width="150px" />
+                <Text text="{endDate}" />
+            </HBox>
+
+            <HBox alignItems="Center">
+                <Label text="{i18n>startDateTime}" class="sapUiSmallMarginEnd" width="150px" />
+                <DateTimePicker id="DTPStart" />
+            </HBox>
+            <HBox alignItems="Center">
+                <Label text="{i18n>endDateTime}" class="sapUiSmallMarginEnd" width="150px" />
+                <DateTimePicker id="DTPEnd" />
+            </HBox>
+        </VBox>
+        <buttons>
+            <Button text="{i18n>submit}" type="Accept" press=".onPressSubmit" />
+            <Button text="{i18n>cancel}" type="Reject" press=".onPressCancel" />
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

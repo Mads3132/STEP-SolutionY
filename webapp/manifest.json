@@ -98,12 +98,21 @@
 					"pattern": "",
 					"name": "main",
 					"target": "main"
+				},
+				{
+					"pattern": "Register",
+					"name": "register",
+					"target": "register"
 				}
 			],
 			"targets": {
 				"main": {
 					"viewId": "main",
 					"viewName": "Main"
+				},
+				"register": {
+					"viewId": "register",
+					"viewName": "Registration"
 				}
 			}
 		}

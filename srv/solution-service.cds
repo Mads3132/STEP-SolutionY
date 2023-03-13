@@ -24,6 +24,6 @@ service solutionService {
 
     action RegisterHours(data : schema.HourRegistrationRequest);
 
-    
+    entity User2Project as projection on schema.User2Project
 }
 
