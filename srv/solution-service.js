@@ -82,7 +82,7 @@ module.exports = async function(srv) {
         
         //-------------------- Absence validation --------------------
          /* Here the user can set their absence, but only inside viable working hours. */
-        if (data.absenceStartTime !== undefined || data.absenceStartTime !== null) {
+        if (data.absenceStartTime !== undefined) {
 
             /* The user inputs a workschedule_ID which belongs to that user. Then we return all those days, where
             that workschedule_ID holds true for that user and create an array out of all those daySchedule entities*/
@@ -162,14 +162,17 @@ module.exports = async function(srv) {
         ]));
 
         // Create Absence entity in AbsenceSet, with user inputted data.
-        await cds.run(INSERT.into(AbsenceSet).entries([
-            {
-                project_ID: data.project_ID,
-                user_ID: data.user_ID,
-                startTime: data.absenceStartTime,
-                endTime: data.absenceEndTime
-            }
-        ]));
+        if (data.absenceStartTime !== undefined) {
+            await cds.run(INSERT.into(AbsenceSet).entries([
+                {
+                    project_ID: data.project_ID,
+                    user_ID: data.user_ID,
+                    startTime: data.absenceStartTime,
+                    endTime: data.absenceEndTime
+                }
+            ]));
+        }
+        
         
         //Lastly the queried project's registeredHours is updated in the database.
         await db.update(ProjectSet).byKey({ID: currentProject.ID}).set({registeredHours: accumulatedHours});

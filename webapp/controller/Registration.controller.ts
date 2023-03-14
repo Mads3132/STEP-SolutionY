@@ -9,6 +9,7 @@ import DateTimePicker from "sap/m/DateTimePicker";
 import ODataListBinding from "sap/ui/model/odata/v4/ODataListBinding";
 import Fragment from "sap/ui/core/Fragment";
 import Context from "sap/ui/model/odata/v4/Context";
+import ODataContextBinding from "sap/ui/model/odata/v4/ODataContextBinding";
 
 /**
  * @namespace schema.TimeRegistry.controller
@@ -37,16 +38,18 @@ export default class Registration extends BaseController {
             this.timedialog = (await this.loadFragment({name: "schema.TimeRegistry.view.fragments.timedialog"})) as Dialog;
 
         }
-        this.timedialog.bindElement(`/Project(${binding.projectID})`);
+        this.timedialog.bindElement(`/ProjectSet(${binding.projectID})`);
         this.timedialog.open();
 
 
     }
 
-    onPressSubmit(ev: Event){
+    async onPressSubmit(ev: Event){
         const model = this.getModel();
         const sdPicker = this.byId("DTPStart") as DateTimePicker;
         const edPicker = this.byId("DTPEnd") as DateTimePicker;
+        const timeDialog = this.byId("timedialog") as Dialog;
+        timeDialog.setBusy(true);
 
         const sdValue = sdPicker.getDateValue();
         const edValue = edPicker.getDateValue();
@@ -57,22 +60,25 @@ export default class Registration extends BaseController {
         }
 
         let payload = {
-            data : {
-                project_ID:this.selectedObject.projectID,
-                user_ID:this.selectedObject.userID,
-                workHourStartTime: sdValue,
-                workHourEndTime: edValue,
-            }
-            
+            project_ID:this.selectedObject.projectID,
+            user_ID:this.selectedObject.userID,
+            workHourStartTime: sdValue,
+            workHourEndTime: edValue,
         };
 
-        const registerHours = model.bindList("/RegisterHours") as ODataListBinding;
-        registerHours //HourRegistrationRequest ?
-            .create(payload)
-            .created()
-            .then(res => {
-                this.timedialog.close();
-            })
+        const registerHours = model.bindContext("/RegisterHours(...)") as ODataContextBinding;
+        registerHours.setParameter("data", payload);
+        try {
+            // Will never contain data from the back-end before .execute() is run
+            await registerHours.execute();
+        } catch (error) {
+            console.log(error);
+        }
+
+        timeDialog.setBusy(false);
+        timeDialog.close();
+
+        // const asd = await registerHours.requestObject()
     }
 
     onPressCancel(ev: Event){
